@@ -31,10 +31,17 @@ uv run faculty-feud --mute
 | `N` | Next question (asks first if points are still unawarded) |
 | `⌘Z` / `Ctrl+Z` | Undo |
 | `F` | Toggle board fullscreen (also `F`, `Esc` or double-click on the board) |
+| `M` | Start / stop think music (stops automatically on the next question) |
 
 The **Points** toggle (1×/2×/3×) sets the multiplier for the round.
 
 After three strikes, revealing answers no longer adds to the bank, the same as the original.
+
+## Think music
+
+The game doesn't ship any music. To enable the **Think music** button, put an audio file at
+`faculty_feud/sounds/think.mp3` (`.m4a`, `.wav`, `.ogg` and `.aac` also work), or pass
+`--music path/to/file`.
 
 ## Question file format
 

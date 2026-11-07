@@ -210,6 +210,8 @@ class ConsoleWindow(QWidget):
                            KeyButton(f"Award {g.teams[1]}", "→")]
         self.undo_btn = KeyButton("Undo", "⌘Z" if sys.platform == "darwin" else "Ctrl+Z")
         self.full_btn = KeyButton("Board fullscreen", "F")
+        self.music_btn = KeyButton("Think music", "M")
+        self.music_btn.setCheckable(True)
         self.next_btn = KeyButton("Next question", "N", "primary")
 
         self.show_q.clicked.connect(g.show_question)
@@ -219,6 +221,7 @@ class ConsoleWindow(QWidget):
         self.award_btns[1].clicked.connect(lambda: g.award(1))
         self.undo_btn.clicked.connect(g.undo)
         self.full_btn.clicked.connect(self.c.toggle_board_fullscreen)
+        self.music_btn.clicked.connect(self.c.toggle_music)
         self.next_btn.clicked.connect(self.next_question)
 
         self.mult_group = QButtonGroup(self)
@@ -240,7 +243,7 @@ class ConsoleWindow(QWidget):
 
         row1 = QHBoxLayout()
         row1.setSpacing(10)
-        for b in (self.show_q, self.strike_btn, self.buzz_btn):
+        for b in (self.show_q, self.strike_btn, self.buzz_btn, self.music_btn):
             row1.addWidget(b)
         row2 = QHBoxLayout()
         row2.setSpacing(10)
@@ -284,6 +287,7 @@ class ConsoleWindow(QWidget):
         bind("Right", lambda: g.award(1))
         bind(QKeySequence.StandardKey.Undo, g.undo)
         bind("F", self.c.toggle_board_fullscreen)
+        bind("M", self.c.toggle_music)
         bind("N", self.next_question)
 
     def next_question(self) -> None:
@@ -300,6 +304,7 @@ class ConsoleWindow(QWidget):
             if box.clickedButton() is not move_on:
                 return
         g.next_question()
+        self.c.music.stop()
 
     def refresh(self) -> None:
         g = self.game
@@ -333,6 +338,13 @@ class ConsoleWindow(QWidget):
         self.show_q.setEnabled(live and not g.question_shown)
         self.strike_btn.setEnabled(live and g.strikes < 3)
         self.buzz_btn.setEnabled(live)
+        music = self.c.music
+        self.music_btn.setEnabled(music.available)
+        self.music_btn.setChecked(music.playing)
+        self.music_btn.setText("Stop music" if music.playing else "Think music")
+        self.music_btn.setToolTip(
+            f"Play {music.path.name}" if music.available else
+            "Add sounds/think.mp3 (or run with --music FILE) to enable")
         for b in self.award_btns:
             b.setEnabled(live and not g.awarded and g.bank > 0)
         self.undo_btn.setEnabled(g.can_undo)
